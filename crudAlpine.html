@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #9E257A;
+            color: #E8E80C;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+    
+        .container-fluid {
+            padding-top: 50px;
+        }
+    
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #4D194D;
+        }
+    
+        .card-header {
+            border-radius: 15px 15px 0 0;
+            background-color: #751975;
+            color: #fff;
+            padding: 15px;
+        }
+        .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #FFFFFF;
+        }
+    
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: background-color 0.3s ease-in-out;
+        }
+    
+        .btn-primary:hover {
+            background-color: #E8E80C;
+            border-color: #0056b3;
+        }
+    
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            transition: background-color 0.3s ease-in-out;
+        }
+    
+        .btn-danger:hover {
+            background-color: #E8E80C;
+            border-color: #c82333;
+        }
+    
+        form {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #751975;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        label {
+            font-size: 18px;
+            color: #E8E80C !important;
+            text-shadow: #E8E80C;
+        }
+    
+        input[type="text"],
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #E8E80C;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333;
+            background-color: #fff;
+            transition: border-color 0.3s ease-in-out;
+        }
+    
+        input[type="text"]:focus,
+        input[type="file"]:focus {
+            border-color: #007bff;
+        }
+    
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+    
+        button:hover {
+            background-color: #751975;
+            color: #E8E80C;
+        }
+    </style>
+    
+    <title>CRUD Application with Alpine.js</title>
+</head>
+
+<body>
+    <h1>CRUD Application</h1>
+    <div class="container-fluid mt-5" x-data="studentCrud()">
+        <div class="row">
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-header text-light bg-dark">
+                        Student Table
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead class="thead">
+                                <tr>
+                                    <th>SL</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="(student, index) in students" :key="index">
+                                    <tr>
+                                        <td x-text="index + 1"></td>
+                                        <td x-text="student.name"></td>
+                                        <td x-text="student.email"></td>
+                                        <td>
+                                            <button @click.prevent="editData(student, index)"
+                                                class="btn btn-info btn-sm">Edit</button>
+                                            <button @click.prevent="deleteData(index)"
+                                                class="btn btn-danger btn-sm">Delete</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header text-light bg-dark">
+                        <span x-show="addMode">Create Student</span>
+                        <span x-show="!addMode">Edit Student</span>
+                    </div>
+                    <div class="card-body">
+                        <form @submit.prevent="saveData" x-show="addMode">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input x-model="form.name" type="text" class="form-control" placeholder="Enter Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input x-model="form.email" type="text" class="form-control" placeholder="Enter Email">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                        <form @submit.prevent="updateData" x-show="!addMode">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input x-model="form.name" type="text" class="form-control" placeholder="Enter Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input x-model="form.email" type="text" class="form-control" placeholder="Enter Email">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Update</button>
+                                <button type="button" class="btn btn-danger" @click.prevent="cancelEdit">Cancel Edit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function studentCrud() {
+            return {
+                addMode: true,
+                id: '',
+                form: {
+                    name: '',
+                    email: '',
+                },
+                students: [{
+                    name: 'test',
+                    email: 'test@mail.com'
+                }],
+                saveData() {
+                    if (this.form.name.length && this.form.email.length) {
+                        this.students.push({
+                            name: this.form.name,
+                            email: this.form.email
+                        })
+                        this.resetForm()
+                    }
+                },
+                editData(student, index) {
+                    this.addMode = false
+                    this.form.name = student.name
+                    this.form.email = student.email
+                    this.id = index
+                },
+                updateData() {
+                    if (this.form.name.length && this.form.email.length) {
+                        this.students.splice(this.id, 1, {
+                            name: this.form.name,
+                            email: this.form.email,
+                        })
+                        this.resetForm()
+                    }
+                },
+                deleteData(index) {
+                    this.students.splice(index, 1)
+                },
+                cancelEdit() {
+                    this.resetForm()
+                },
+                resetForm() {
+                    this.form.name = ''
+                    this.form.email = ''
+                    this.addMode = true
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
